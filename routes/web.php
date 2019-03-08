@@ -21,5 +21,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::prefix('admin')->namespace('Admin')->group(function () {
     Route::resource('/users', 'UserController');
+    Route::resource('/permissions', 'PermissionController');
+    Route::resource('/roles', 'RoleController');
 
 });

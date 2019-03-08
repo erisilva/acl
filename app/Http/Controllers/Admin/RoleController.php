@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\User;
+use App\Role; // Perfil
 use App\Perpage;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
-class UserController extends Controller
+class RoleController extends Controller
 {
     /**
      * Construtor.
@@ -26,7 +25,6 @@ class UserController extends Controller
         $this->middleware(['middleware' => 'hasaccess']);
     }
 
-
     /**
      * Display a listing of the resource.
      *
@@ -34,19 +32,18 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = new User;
+        $roles = new Role;
 
         // filtros
         if (request()->has('name')){
-            $users = $users->where('name', 'like', '%' . request('name') . '%');
+            $roles = $roles->where('name', 'like', '%' . request('name') . '%');
         }
 
-        if (request()->has('email')){
-            $users = $users->where('email', 'like', '%' . request('email') . '%');
-        }
-
+        if (request()->has('description')){
+            $roles = $roles->where('description', 'like', '%' . request('description') . '%');
+        }            
         // ordena
-        $users = $users->orderBy('name', 'asc');        
+        $roles = $roles->orderBy('name', 'asc');
 
         // se a requisição tiver um novo valor para a quantidade
         // de páginas por visualização ele altera aqui
@@ -59,12 +56,12 @@ class UserController extends Controller
         $perpages = Perpage::orderBy('valor')->get();
 
         // paginação
-        $users = $users->paginate(session('perPage'))->appends([          
+        $roles = $roles->paginate(session('perPage'))->appends([          
             'name' => request('name'),
-            'email' => request('email'),           
+            'description' => request('description'),           
             ]);
 
-        return view('admin.users.index', compact('users', 'perpages'));
+        return view('admin.roles.index', compact('roles', 'perpages'));
     }
 
     /**
@@ -74,7 +71,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        return view('admin.roles.create');
     }
 
     /**
@@ -87,19 +84,16 @@ class UserController extends Controller
     {
         $this->validate($request, [
           'name' => 'required',
-          'email' => 'required|email|unique:users,email',
-          'password' => 'required|min:6|confirmed'
+          'description' => 'required',
         ]);
 
-        $user = $request->all();
-        $user['active'] = 'Y'; // torna o novo registro ativo
-        $user['password'] = Hash::make($user['password']); // criptografa a senha
+        $role = $request->all();
 
-        User::create($user); //salva
+        Role::create($role); //salva
 
-        Session::flash('create_user', 'Operador cadastrado com sucesso!');
+        Session::flash('create_role', 'Perfil cadastrado com sucesso!');
 
-        return redirect(route('users.index'));
+        return redirect(route('roles.index'));
     }
 
     /**
@@ -110,10 +104,10 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        // usuário que será exibido e pode ser excluido
-        $user = User::findOrFail($id);
+        // perfil que será exibido e pode ser excluido
+        $role = Role::findOrFail($id);
 
-        return view('admin.users.show', compact('user'));
+        return view('admin.roles.show', compact('role'));
     }
 
     /**
@@ -124,10 +118,10 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        // usuário que será alterado
-        $user = User::findOrFail($id);
+        // perfil que será alterado
+        $role = Role::findOrFail($id);
 
-        return view('admin.users.edit', compact('user'));
+        return view('admin.roles.edit', compact('role'));
     }
 
     /**
@@ -141,30 +135,16 @@ class UserController extends Controller
     {
         $this->validate($request, [
           'name' => 'required',
-          'email' => 'required|email',
-          'password' => 'required|min:6'
+          'description' => 'required',
         ]);
 
-        $user = User::findOrFail($id);
-
-        if ($request->has('password')) {
-            $input = $request->all();
-            $input['password'] = Hash::make($input['password']);
-        } else {
-            $input = $request->except('password');
-        }   
-
-        if (isset($input['active'])) {
-            $input['active'] = 'Y';
-        } else {
-            $input['active'] = 'N';
-        }
+        $role = Role::findOrFail($id);
             
-        $user->update($input);
+        $role->update($request->all());
         
-        Session::flash('edited_user', 'Operador alterado com sucesso!');
+        Session::flash('edited_role', 'Perfil alterado com sucesso!');
 
-        return redirect(route('users.edit', $id));
+        return redirect(route('roles.edit', $id));
     }
 
     /**
@@ -175,10 +155,10 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        Role::findOrFail($id)->delete();
 
-        Session::flash('deleted_user', 'Operador excluído com sucesso!');
+        Session::flash('deleted_role', 'Permissão excluída com sucesso!');
 
-        return redirect(route('users.index'));
+        return redirect(route('roles.index'));
     }
 }

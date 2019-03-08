@@ -4,29 +4,30 @@
 <div class="container-fluid">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item active" aria-current="page"><a href="{{ route('users.index') }}">Lista de Operadores</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('users.index') }}">Lista de Operadores</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><a href="{{ route('roles.index') }}">Perfis</a></li>
     </ol>
   </nav>
   {{-- avisa se um usuario foi excluido --}}
-  @if(Session::has('deleted_user'))
+  @if(Session::has('deleted_role'))
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>Info!</strong>  {{ session('deleted_user') }}
+    <strong>Info!</strong>  {{ session('deleted_role') }}
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   @endif
   {{-- avisa quando um usuário foi modificado --}}
-  @if(Session::has('create_user'))
+  @if(Session::has('create_role'))
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>Info!</strong>  {{ session('create_user') }}
+    <strong>Info!</strong>  {{ session('create_role') }}
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   @endif
   <div class="btn-group" role="group" aria-label="Opções">
-    <a href="{{ route('users.create') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-plus-square"></i> Novo Registro</a>
+    <a href="{{ route('roles.create') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-plus-square"></i> Novo Registro</a>
     <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#modalFilter"><i class="fas fa-filter"></i> Filtrar</button>
     <div class="btn-group" role="group">
       <button id="btnGroupDropOptions" type="button" class="btn btn-secondary dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -46,25 +47,19 @@
         <thead>
             <tr>
                 <th scope="col">Nome</th>
-                <th scope="col">E-mail</th>
-                <th scope="col">Situação</th>
+                <th scope="col">Descrição</th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach($users as $user)
+            @foreach($roles as $role)
             <tr>
-                <td>{{$user->name}}</td>
-                <td>{{$user->email}}</td>
-                <td>
-                @if($user->active == 'N')
-                    <i class="fas fa-user-lock"></i>  
-                @endif
-                </td>
+                <td>{{$role->name}}</td>
+                <td>{{$role->description}}</td>
                 <td>
                   <div class="btn-group" role="group">
-                    <a href="{{route('users.edit', $user->id)}}" class="btn btn-primary btn-sm" role="button"><i class="fas fa-edit"></i></a>
-                    <a href="{{route('users.show', $user->id)}}" class="btn btn-primary btn-sm" role="button"><i class="fas fa-trash-alt"></i></a>
+                    <a href="{{route('roles.edit', $role->id)}}" class="btn btn-primary btn-sm" role="button"><i class="fas fa-edit"></i></a>
+                    <a href="{{route('roles.show', $role->id)}}" class="btn btn-primary btn-sm" role="button"><i class="fas fa-trash-alt"></i></a>
                   </div>
                 </td>
             </tr>    
@@ -72,9 +67,9 @@
         </tbody>
     </table>
   </div>
-  <p class="text-center">Página {{ $users->currentPage() }} de {{ $users->lastPage() }}. Total de registros: {{ $users->total() }}.</p>
+  <p class="text-center">Página {{ $roles->currentPage() }} de {{ $roles->lastPage() }}. Total de registros: {{ $roles->total() }}.</p>
   <div class="container-fluid">
-      {{ $users->links() }}
+      {{ $roles->links() }}
   </div>
   <!-- Janela de filtragem da consulta -->
   <div class="modal fade" id="modalFilter" tabindex="-1" role="dialog" aria-labelledby="JanelaFiltro" aria-hidden="true">
@@ -88,17 +83,17 @@
         </div>
         <div class="modal-body">
           <!-- Filtragem dos dados -->
-          <form method="GET" action="{{ route('users.index') }}">
+          <form method="GET" action="{{ route('roles.index') }}">
             <div class="form-group">
               <label for="name">Nome</label>
               <input type="text" class="form-control" id="name" name="name" value="{{request()->input('name')}}">
             </div>
             <div class="form-group">
-              <label for="email">E-mail</label>
-              <input type="text" class="form-control" id="email" name="email" value="{{request()->input('email')}}">
+              <label for="description">Descrição</label>
+              <input type="text" class="form-control" id="description" name="description" value="{{request()->input('description')}}">
             </div>
             <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Pesquisar</button>
-            <a href="{{ route('users.index') }}" class="btn btn-primary btn-sm" role="button">Limpar</a>
+            <a href="{{ route('roles.index') }}" class="btn btn-primary btn-sm" role="button">Limpar</a>
           </form>
           <br>
           <!-- Seleção de número de resultados por página -->
@@ -124,7 +119,7 @@ $(document).ready(function(){
     $('#perpage').on('change', function() {
         perpage = $(this).find(":selected").val(); 
         
-        window.open("{{ route('users.index') }}" + "?perpage=" + perpage,"_self");
+        window.open("{{ route('roles.index') }}" + "?perpage=" + perpage,"_self");
     });
 }); 
 </script>

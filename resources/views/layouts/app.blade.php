@@ -32,7 +32,19 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
-
+                        @if (!Auth::guest())
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarConfig" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Configurações
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarConfig">
+                              <a class="dropdown-item" href="{{ route('users.index') }}"><i class="fas fa-users-cog"></i> Operadores do Sistema</a>
+                            </div>
+                          </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">To-Do</a>
+                        </li>    
+                        @endif
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -42,11 +54,6 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
                             </li>
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>

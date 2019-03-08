@@ -15,5 +15,13 @@ class Permission extends Model
         'name', 'description',
     ];
 
-    
+    /**
+     * Perfis dessa permissão
+     *
+     * @var Role
+     */
+    public function roles()
+    {
+        return $this->belongsToMany('App\Role');
+    }
 }

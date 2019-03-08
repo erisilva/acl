@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\User;
+use App\Permission;
 use App\Perpage;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 
-class UserController extends Controller
+class PermissionController extends Controller
 {
     /**
      * Construtor.
@@ -34,19 +33,19 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = new User;
+        $permissions = new Permission;
 
         // filtros
         if (request()->has('name')){
-            $users = $users->where('name', 'like', '%' . request('name') . '%');
+            $permissions = $permissions->where('name', 'like', '%' . request('name') . '%');
         }
 
-        if (request()->has('email')){
-            $users = $users->where('email', 'like', '%' . request('email') . '%');
+        if (request()->has('description')){
+            $permissions = $permissions->where('description', 'like', '%' . request('description') . '%');
         }
 
         // ordena
-        $users = $users->orderBy('name', 'asc');        
+        $permissions = $permissions->orderBy('name', 'asc');
 
         // se a requisição tiver um novo valor para a quantidade
         // de páginas por visualização ele altera aqui
@@ -59,12 +58,12 @@ class UserController extends Controller
         $perpages = Perpage::orderBy('valor')->get();
 
         // paginação
-        $users = $users->paginate(session('perPage'))->appends([          
+        $permissions = $permissions->paginate(session('perPage'))->appends([          
             'name' => request('name'),
-            'email' => request('email'),           
+            'description' => request('description'),           
             ]);
 
-        return view('admin.users.index', compact('users', 'perpages'));
+        return view('admin.permissions.index', compact('permissions', 'perpages'));
     }
 
     /**
@@ -74,7 +73,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        return view('admin.permissions.create');
     }
 
     /**
@@ -87,19 +86,16 @@ class UserController extends Controller
     {
         $this->validate($request, [
           'name' => 'required',
-          'email' => 'required|email|unique:users,email',
-          'password' => 'required|min:6|confirmed'
+          'description' => 'required',
         ]);
 
-        $user = $request->all();
-        $user['active'] = 'Y'; // torna o novo registro ativo
-        $user['password'] = Hash::make($user['password']); // criptografa a senha
+        $permission = $request->all();
 
-        User::create($user); //salva
+        Permission::create($permission); //salva
 
-        Session::flash('create_user', 'Operador cadastrado com sucesso!');
+        Session::flash('create_permission', 'Permissão cadastrada com sucesso!');
 
-        return redirect(route('users.index'));
+        return redirect(route('permissions.index'));
     }
 
     /**
@@ -110,10 +106,10 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        // usuário que será exibido e pode ser excluido
-        $user = User::findOrFail($id);
+        // permissão que será exibido e pode ser excluido
+        $permission = Permission::findOrFail($id);
 
-        return view('admin.users.show', compact('user'));
+        return view('admin.permissions.show', compact('permission'));
     }
 
     /**
@@ -125,9 +121,9 @@ class UserController extends Controller
     public function edit($id)
     {
         // usuário que será alterado
-        $user = User::findOrFail($id);
+        $permission = Permission::findOrFail($id);
 
-        return view('admin.users.edit', compact('user'));
+        return view('admin.permissions.edit', compact('permission'));
     }
 
     /**
@@ -141,30 +137,16 @@ class UserController extends Controller
     {
         $this->validate($request, [
           'name' => 'required',
-          'email' => 'required|email',
-          'password' => 'required|min:6'
+          'description' => 'required',
         ]);
 
-        $user = User::findOrFail($id);
-
-        if ($request->has('password')) {
-            $input = $request->all();
-            $input['password'] = Hash::make($input['password']);
-        } else {
-            $input = $request->except('password');
-        }   
-
-        if (isset($input['active'])) {
-            $input['active'] = 'Y';
-        } else {
-            $input['active'] = 'N';
-        }
+        $permission = Permission::findOrFail($id);
             
-        $user->update($input);
+        $permission->update($request->all());
         
-        Session::flash('edited_user', 'Operador alterado com sucesso!');
+        Session::flash('edited_permission', 'Permissão alterada com sucesso!');
 
-        return redirect(route('users.edit', $id));
+        return redirect(route('permissions.edit', $id));
     }
 
     /**
@@ -175,10 +157,10 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
+        Permission::findOrFail($id)->delete();
 
-        Session::flash('deleted_user', 'Operador excluído com sucesso!');
+        Session::flash('deleted_permission', 'Permissão excluída com sucesso!');
 
-        return redirect(route('users.index'));
+        return redirect(route('permissions.index'));
     }
 }
