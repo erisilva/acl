@@ -62,10 +62,42 @@
             </label>
           </div>
       </div>
-    </div>  
+    </div>
+    <div class="container bg-primary text-white">
+      <p class="text-center">Perfis</p>
+    </div>
+    <div class="form-row">
+      @foreach($roles as $role)
+        @php
+          $checked = '';
+          if(old('roles') ?? false){
+            foreach (old('roles') as $key => $id) {
+              if($id == $role->id){
+                $checked = "checked";
+              }
+            }
+          }else{
+            if($user ?? false){
+              foreach ($user->roles as $key => $roleList) {
+                if($roleList->id == $role->id){
+                  $checked = "checked";
+                }
+              }
+            }
+          }
+        @endphp
+      <div class="form-group col-4">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="roles[]" value="{{$role->id}}" {{$checked}}>
+            <label class="form-check-label" for="roles">{{$role->description}}</label>
+        </div>
+      </div>
+      @endforeach
+    </div>
     <button type="submit" class="btn btn-primary"><i class="fas fa-edit"></i> Alterar Dados do Operador</button>
   </form>
-
+</div>
+<div class="container">
   <div class="float-right">
     <a href="{{ route('users.index') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-long-arrow-alt-left"></i> Voltar</i></a>
   </div>

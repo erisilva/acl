@@ -26,7 +26,7 @@
     </button>
   </div>
   @endif
-  <div class="btn-group" role="group" aria-label="Opções">
+  <div class="btn-group py-1" role="group" aria-label="Opções">
     <a href="{{ route('roles.create') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-plus-square"></i> Novo Registro</a>
     <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#modalFilter"><i class="fas fa-filter"></i> Filtrar</button>
     <div class="btn-group" role="group">

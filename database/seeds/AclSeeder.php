@@ -48,7 +48,7 @@ class AclSeeder extends Seeder
 		$user_edit = Permission::where('name', '=', 'user.edit')->get()->first();        
 		$user_delete = Permission::where('name', '=', 'user.delete')->get()->first();      
 		$user_show = Permission::where('name', '=', 'user.show')->get()->first();        
-		$user_export = Permission::where('name', '=', 'user.expor')->get()->first();      
+		$user_export = Permission::where('name', '=', 'user.export')->get()->first();      
 		// para perfis
 		$role_index = Permission::where('name', '=', 'role.index')->get()->first();       
 		$role_create = Permission::where('name', '=', 'role.create')->get()->first();      
@@ -78,6 +78,7 @@ class AclSeeder extends Seeder
 		$administrador_perfil->permissions()->attach($role_edit);
 		$administrador_perfil->permissions()->attach($role_delete);
 		$administrador_perfil->permissions()->attach($role_show);
+		$administrador_perfil->permissions()->attach($role_export);
 		$administrador_perfil->permissions()->attach($permission_index);
 		$administrador_perfil->permissions()->attach($permission_create);
 		$administrador_perfil->permissions()->attach($permission_edit);

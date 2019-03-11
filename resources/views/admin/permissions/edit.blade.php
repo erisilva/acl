@@ -45,7 +45,8 @@
     </div>  
     <button type="submit" class="btn btn-primary"><i class="fas fa-edit"></i> Alterar Dados da Permissão</button>
   </form>
-
+</div>
+<div class="container">
   <div class="float-right">
     <a href="{{ route('permissions.index') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-long-arrow-alt-left"></i> Voltar</i></a>
   </div>

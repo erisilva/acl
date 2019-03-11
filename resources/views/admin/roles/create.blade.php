@@ -32,11 +32,36 @@
         </div>
         @endif
       </div>
+    </div>
+    <div class="container bg-primary text-white">
+      <p class="text-center">Permissões</p>
+    </div>
+    <div class="form-row">
+      @foreach($permissions as $permission)
+        @php
+          $checked = '';
+          if(old('permissions') ?? false){
+            foreach (old('permissions') as $key => $id) {
+              if($id == $permission->id){
+                $checked = "checked";
+              }
+            }
+          }
+        @endphp
+      <div class="form-group col-4">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" name="permissions[]" value="{{$permission->id}}" {{$checked}}>
+            <label class="form-check-label" for="permissions">{{$permission->description}}</label>
+        </div>
+      </div>
+      @endforeach
     </div>    
     <button type="submit" class="btn btn-primary"><i class="fas fa-plus-square"></i> Incluir Permissão</button>
   </form>
+</div>
+<div class="container">
   <div class="float-right">
-    <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-long-arrow-alt-left"></i> Voltar</i></a>
+    <a href="{{ route('users.index') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-long-arrow-alt-left"></i> Voltar</i></a>
   </div>
 </div>
 @endsection

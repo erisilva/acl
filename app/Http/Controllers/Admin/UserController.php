@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\User;
 use App\Perpage;
+use App\Role;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -74,7 +75,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        // listagem de perfis (roles)
+        $roles = Role::orderBy('description','asc')->get();
+
+        return view('admin.users.create', compact('roles'));
     }
 
     /**
@@ -95,7 +99,15 @@ class UserController extends Controller
         $user['active'] = 'Y'; // torna o novo registro ativo
         $user['password'] = Hash::make($user['password']); // criptografa a senha
 
-        User::create($user); //salva
+        $newUser = User::create($user); //salva
+
+        // salva os perfis (roles)
+        if(isset($user['roles']) && count($user['roles'])){
+            foreach ($user['roles'] as $key => $value) {
+                $newUser->roles()->attach($value);
+            }
+
+        }    
 
         Session::flash('create_user', 'Operador cadastrado com sucesso!');
 
@@ -127,7 +139,10 @@ class UserController extends Controller
         // usuário que será alterado
         $user = User::findOrFail($id);
 
-        return view('admin.users.edit', compact('user'));
+        // listagem de perfis (roles)
+        $roles = Role::orderBy('description','asc')->get();
+
+        return view('admin.users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -142,11 +157,11 @@ class UserController extends Controller
         $this->validate($request, [
           'name' => 'required',
           'email' => 'required|email',
-          'password' => 'required|min:6'
         ]);
 
         $user = User::findOrFail($id);
 
+        // atualiza a senha do usuário se esse campo tiver sido preenchido
         if ($request->has('password')) {
             $input = $request->all();
             $input['password'] = Hash::make($input['password']);
@@ -154,12 +169,28 @@ class UserController extends Controller
             $input = $request->except('password');
         }   
 
+        // configura se operador está habilitado ou não a usar o sistema
         if (isset($input['active'])) {
             $input['active'] = 'Y';
         } else {
             $input['active'] = 'N';
         }
-            
+
+        // remove todos os perfis vinculados a esse operador
+        $roles = $user->roles;
+        if(count($roles)){
+            foreach ($roles as $key => $value) {
+               $user->roles()->detach($value->id);
+            }
+        }
+
+        // vincula os novos perfis desse operador
+        if(isset($input['roles']) && count($input['roles'])){
+            foreach ($input['roles'] as $key => $value) {
+               $user->roles()->attach($value);
+            }
+        }
+
         $user->update($input);
         
         Session::flash('edited_user', 'Operador alterado com sucesso!');
