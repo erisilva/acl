@@ -127,6 +127,12 @@ $(document).ready(function(){
         var filtro_description = $('input[name="description"]').val();
         window.open("{{ route('roles.export.csv') }}" + "?name=" + filtro_name + "&description=" + filtro_description,"_self");
     });
+
+    $('#btnExportarPDF').on('click', function(){
+        var filtro_name = $('input[name="name"]').val();
+        var filtro_description = $('input[name="description"]').val();
+        window.open("{{ route('roles.export.pdf') }}" + "?name=" + filtro_name + "&description=" + filtro_description,"_self");
+    });
 }); 
 </script>
 @endsection

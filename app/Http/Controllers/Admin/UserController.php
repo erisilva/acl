@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+
+    protected $pdf; // usado para injeção do cabeçalho e rodapé da impressão pelo fpdf
+
     /**
      * Construtor.
      *
@@ -25,10 +28,15 @@ class UserController extends Controller
      *
      * @return 
      */
-    public function __construct()
+    public function __construct(\App\Reports\UserReport $pdf) // o modelo que é usado para extender o FPDF
+                                                              // é colocado em /App/reports
+                                                              // nesse arquivo é desenhado o cabeçalho e
+                                                              // rodapé das páginas de saída 
     {
         $this->middleware(['middleware' => 'auth']);
         $this->middleware(['middleware' => 'hasaccess']);
+
+        $this->pdf = $pdf;
     }
 
 
@@ -241,7 +249,7 @@ class UserController extends Controller
     /**
      * Exportação para planilha (csv)
      *
-     * @param  int  $id
+     * @param
      * @return Response::stream()
      */
     public function exportcsv()
@@ -296,4 +304,49 @@ class UserController extends Controller
 
         return Response::stream($callback, 200, $headers);
     }
+
+    /**
+     * Exportação para pdf
+     *
+     * @param  
+     * @return 
+     */
+    public function exportpdf()
+    {
+        if (Gate::denies('user.export')) {
+            abort(403, 'Acesso negado.');
+        }
+        
+        $this->pdf->AliasNbPages();   
+        $this->pdf->SetMargins(15, 15, 15);
+        $this->pdf->SetFont('Arial','',12);
+        $this->pdf->AddPage();
+
+        
+        $users = DB::table('users');
+
+        $users = $users->select('name', 'email');
+
+        // filtros
+        if (request()->has('name')){
+            $users = $users->where('name', 'like', '%' . request('name') . '%');
+        }
+
+        if (request()->has('email')){
+            $users = $users->where('email', 'like', '%' . request('email') . '%');
+        }
+
+        $users = $users->orderBy('name', 'asc');
+
+        $users = $users->get();
+
+        foreach ($users as $user) {
+            $this->pdf->Cell(93, 6, utf8_decode($user->name), 0, 0,'L');
+            $this->pdf->Cell(93, 6, utf8_decode($user->email), 0, 0,'L');
+            $this->pdf->Ln();
+        }
+
+        $this->pdf->Output('D', 'Operadores_' .  date("Y-m-d H:i:s") . '.pdf', true);
+        exit;
+    }    
 }

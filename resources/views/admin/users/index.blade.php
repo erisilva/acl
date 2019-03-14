@@ -132,6 +132,12 @@ $(document).ready(function(){
         var filtro_email = $('input[name="email"]').val();
         window.open("{{ route('users.export.csv') }}" + "?name=" + filtro_name + "&email=" + filtro_email,"_self");
     });
+
+    $('#btnExportarPDF').on('click', function(){
+        var filtro_name = $('input[name="name"]').val();
+        var filtro_email = $('input[name="email"]').val();
+        window.open("{{ route('users.export.pdf') }}" + "?name=" + filtro_name + "&email=" + filtro_email,"_self");
+    });
 }); 
 </script>
 @endsection

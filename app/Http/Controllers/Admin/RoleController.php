@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\DB;
 
 class RoleController extends Controller
 {
+
+    protected $pdf; // usado para injeção do cabeçalho e rodapé da impressão pelo fpdf
+
     /**
      * Construtor.
      *
@@ -24,10 +27,15 @@ class RoleController extends Controller
      *
      * @return 
      */
-    public function __construct()
+    public function __construct(\App\Reports\RoleReport $pdf) // o modelo que é usado para extender o FPDF
+                                                              // é colocado em /App/reports
+                                                              // nesse arquivo é desenhado o cabeçalho e
+                                                              // rodapé das páginas de saída 
     {
         $this->middleware(['middleware' => 'auth']);
         $this->middleware(['middleware' => 'hasaccess']);
+
+        $this->pdf = $pdf;
     }
 
     /**
@@ -277,4 +285,49 @@ class RoleController extends Controller
 
         return Response::stream($callback, 200, $headers);
     }
+
+     /**
+     * Exportação para pdf
+     *
+     * @param  
+     * @return 
+     */
+    public function exportpdf()
+    {
+        if (Gate::denies('role.export')) {
+            abort(403, 'Acesso negado.');
+        }
+        
+        $this->pdf->AliasNbPages();   
+        $this->pdf->SetMargins(15, 15, 15);
+        $this->pdf->SetFont('Arial','',12);
+        $this->pdf->AddPage();
+
+        $roles = DB::table('roles');
+
+        $roles = $roles->select('name', 'description');
+
+        // filtros
+        if (request()->has('name')){
+            $roles = $roles->where('name', 'like', '%' . request('name') . '%');
+        }
+
+        if (request()->has('description')){
+            $roles = $roles->where('description', 'like', '%' . request('description') . '%');
+        }
+
+        $roles = $roles->orderBy('name', 'asc');    
+
+
+        $roles = $roles->get();
+
+        foreach ($roles as $role) {
+            $this->pdf->Cell(80, 6, utf8_decode($role->name), 0, 0,'L');
+            $this->pdf->Cell(106, 6, utf8_decode($role->description), 0, 0,'L');
+            $this->pdf->Ln();
+        }
+
+        $this->pdf->Output('D', 'Perfis_' .  date("Y-m-d H:i:s") . '.pdf', true);
+        exit;
+    } 
 }

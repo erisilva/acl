@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\DB;
 
 class PermissionController extends Controller
 {
+
+    protected $pdf; // usado para injeção do cabeçalho e rodapé da impressão pelo fpdf
+
     /**
      * Construtor.
      *
@@ -24,10 +27,15 @@ class PermissionController extends Controller
      *
      * @return 
      */
-    public function __construct()
+    public function __construct(\App\Reports\PermissionReport $pdf)// o modelo que é usado para extender o FPDF
+                                                              // é colocado em /App/reports
+                                                              // nesse arquivo é desenhado o cabeçalho e
+                                                              // rodapé das páginas de saída 
     {
         $this->middleware(['middleware' => 'auth']);
         $this->middleware(['middleware' => 'hasaccess']);
+
+        $this->pdf = $pdf;
     }
 
 
@@ -247,4 +255,49 @@ class PermissionController extends Controller
 
         return Response::stream($callback, 200, $headers);
     }
+
+        /**
+     * Exportação para pdf
+     *
+     * @param  
+     * @return 
+     */
+    public function exportpdf()
+    {
+        if (Gate::denies('permission.export')) {
+            abort(403, 'Acesso negado.');
+        }
+        
+        $this->pdf->AliasNbPages();   
+        $this->pdf->SetMargins(15, 15, 15);
+        $this->pdf->SetFont('Arial','',12);
+        $this->pdf->AddPage();
+
+        $permissions = DB::table('permissions');
+
+        $permissions = $permissions->select('name', 'description');
+
+        // filtros
+        if (request()->has('name')){
+            $permissions = $permissions->where('name', 'like', '%' . request('name') . '%');
+        }
+
+        if (request()->has('description')){
+            $permissions = $permissions->where('description', 'like', '%' . request('description') . '%');
+        }
+
+        $permissions = $permissions->orderBy('name', 'asc');    
+
+
+        $permissions = $permissions->get();
+
+        foreach ($permissions as $permission) {
+            $this->pdf->Cell(80, 6, utf8_decode($permission->name), 0, 0,'L');
+            $this->pdf->Cell(106, 6, utf8_decode($permission->description), 0, 0,'L');
+            $this->pdf->Ln();
+        }
+
+        $this->pdf->Output('D', 'Permissões_' .  date("Y-m-d H:i:s") . '.pdf', true);
+        exit;
+    } 
 }
