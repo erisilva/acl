@@ -63,12 +63,14 @@
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                    onclick="event.preventDefault();
                                                  document.getElementById('logout-form').submit();">
-                                    {{ __('Logout') }}
+                                    <i class="fas fa-sign-out-alt"></i> Sair do Sistema
                                 </a>
 
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                     @csrf
                                 </form>
+
+                                <a class="dropdown-item" href="{{ route('users.password') }}"><i class="fas fa-key"></i> Trocar Senha</a>
                             </div>
                         </li>
                     @endguest

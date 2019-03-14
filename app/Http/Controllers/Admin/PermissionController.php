@@ -5,9 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Permission;
 use App\Perpage;
 
+use Response;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Gate;
+
+use Illuminate\Support\Facades\DB;
 
 class PermissionController extends Controller
 {
@@ -33,6 +38,10 @@ class PermissionController extends Controller
      */
     public function index()
     {
+        if (Gate::denies('permission.index')) {
+            abort(403, 'Acesso negado.');
+        }
+
         $permissions = new Permission;
 
         // filtros
@@ -73,6 +82,10 @@ class PermissionController extends Controller
      */
     public function create()
     {
+        if (Gate::denies('permission.create')) {
+            abort(403, 'Acesso negado.');
+        }
+
         return view('admin.permissions.create');
     }
 
@@ -106,6 +119,10 @@ class PermissionController extends Controller
      */
     public function show($id)
     {
+        if (Gate::denies('permission.show')) {
+            abort(403, 'Acesso negado.');
+        }
+
         // permissão que será exibido e pode ser excluido
         $permission = Permission::findOrFail($id);
 
@@ -120,6 +137,10 @@ class PermissionController extends Controller
      */
     public function edit($id)
     {
+        if (Gate::denies('permission.edit')) {
+            abort(403, 'Acesso negado.');
+        }
+
         // usuário que será alterado
         $permission = Permission::findOrFail($id);
 
@@ -157,10 +178,73 @@ class PermissionController extends Controller
      */
     public function destroy($id)
     {
+        if (Gate::denies('permission.delete')) {
+            abort(403, 'Acesso negado.');
+        }
+
         Permission::findOrFail($id)->delete();
 
         Session::flash('deleted_permission', 'Permissão excluída com sucesso!');
 
         return redirect(route('permissions.index'));
+    }
+
+    /**
+     * Exportação para planilha (csv)
+     *
+     * @param  int  $id
+     * @return Response::stream()
+     */
+    public function exportcsv()
+    {
+        if (Gate::denies('permission.export')) {
+            abort(403, 'Acesso negado.');
+        }
+
+        $headers = [
+                'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0'
+            ,   'Content-type'        => 'text/csv'
+            ,   'Content-Disposition' => 'attachment; filename=Permissões_' .  date("Y-m-d H:i:s") . '.csv'
+            ,   'Expires'             => '0'
+            ,   'Pragma'              => 'public'
+        ];
+
+        $permissions = DB::table('permissions');
+
+        $permissions = $permissions->select('name', 'description');
+
+        // filtros
+        if (request()->has('name')){
+            $permissions = $permissions->where('name', 'like', '%' . request('name') . '%');
+        }
+
+        if (request()->has('description')){
+            $permissions = $permissions->where('description', 'like', '%' . request('description') . '%');
+        }
+
+        $permissions = $permissions->orderBy('name', 'asc');
+
+        $list = $permissions->get()->toArray();
+
+        // nota: mostra consulta gerada pelo elloquent
+        // dd($distritos->toSql());
+
+        # converte os objetos para uma array
+        $list = json_decode(json_encode($list), true);
+
+        # add headers for each column in the CSV download
+        array_unshift($list, array_keys($list[0]));
+
+       $callback = function() use ($list)
+        {
+            $FH = fopen('php://output', 'w');
+            fputs($FH, $bom = ( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+            foreach ($list as $row) {
+                fputcsv($FH, $row, chr(9));
+            }
+            fclose($FH);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
 }

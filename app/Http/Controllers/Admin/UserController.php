@@ -6,10 +6,14 @@ use App\User;
 use App\Perpage;
 use App\Role;
 
+use Response;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -35,6 +39,10 @@ class UserController extends Controller
      */
     public function index()
     {
+        if (Gate::denies('user.index')) {
+            abort(403, 'Acesso negado.');
+        }
+
         $users = new User;
 
         // filtros
@@ -75,6 +83,10 @@ class UserController extends Controller
      */
     public function create()
     {
+        if (Gate::denies('user.create')) {
+            abort(403, 'Acesso negado.');
+        }
+
         // listagem de perfis (roles)
         $roles = Role::orderBy('description','asc')->get();
 
@@ -122,6 +134,11 @@ class UserController extends Controller
      */
     public function show($id)
     {
+        // verifica o acesso
+        if (Gate::denies('user.show')) {
+            abort(403, 'Acesso negado.');
+        }
+
         // usuário que será exibido e pode ser excluido
         $user = User::findOrFail($id);
 
@@ -136,6 +153,10 @@ class UserController extends Controller
      */
     public function edit($id)
     {
+        if (Gate::denies('user.edit')) {
+            abort(403, 'Acesso negado.');
+        }
+
         // usuário que será alterado
         $user = User::findOrFail($id);
 
@@ -206,10 +227,73 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+        if (Gate::denies('user.delete')) {
+            abort(403, 'Acesso negado.');
+        }
+
         User::findOrFail($id)->delete();
 
         Session::flash('deleted_user', 'Operador excluído com sucesso!');
 
         return redirect(route('users.index'));
+    }
+
+    /**
+     * Exportação para planilha (csv)
+     *
+     * @param  int  $id
+     * @return Response::stream()
+     */
+    public function exportcsv()
+    {
+        if (Gate::denies('user.export')) {
+            abort(403, 'Acesso negado.');
+        }
+
+        $headers = [
+                'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0'
+            ,   'Content-type'        => 'text/csv'
+            ,   'Content-Disposition' => 'attachment; filename=Operadores_' .  date("Y-m-d H:i:s") . '.csv'
+            ,   'Expires'             => '0'
+            ,   'Pragma'              => 'public'
+        ];
+
+        $users = DB::table('users');
+
+        $users = $users->select('name', 'email');
+
+        // filtros
+        if (request()->has('name')){
+            $users = $users->where('name', 'like', '%' . request('name') . '%');
+        }
+
+        if (request()->has('email')){
+            $users = $users->where('email', 'like', '%' . request('email') . '%');
+        }
+
+        $users = $users->orderBy('name', 'asc');
+
+        $list = $users->get()->toArray();
+
+        // nota: mostra consulta gerada pelo elloquent
+        // dd($distritos->toSql());
+
+        # converte os objetos para uma array
+        $list = json_decode(json_encode($list), true);
+
+        # add headers for each column in the CSV download
+        array_unshift($list, array_keys($list[0]));
+
+       $callback = function() use ($list)
+        {
+            $FH = fopen('php://output', 'w');
+            fputs($FH, $bom = ( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+            foreach ($list as $row) {
+                fputcsv($FH, $row, chr(9));
+            }
+            fclose($FH);
+        };
+
+        return Response::stream($callback, 200, $headers);
     }
 }

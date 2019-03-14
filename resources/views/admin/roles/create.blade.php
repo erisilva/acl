@@ -56,12 +56,12 @@
       </div>
       @endforeach
     </div>    
-    <button type="submit" class="btn btn-primary"><i class="fas fa-plus-square"></i> Incluir Permissão</button>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-plus-square"></i> Incluir Perfil</button>
   </form>
 </div>
 <div class="container">
   <div class="float-right">
-    <a href="{{ route('users.index') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-long-arrow-alt-left"></i> Voltar</i></a>
+    <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm" role="button"><i class="fas fa-long-arrow-alt-left"></i> Voltar</i></a>
   </div>
 </div>
 @endsection

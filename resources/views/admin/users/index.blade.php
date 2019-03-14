@@ -36,8 +36,8 @@
         <a class="dropdown-item" href="{{ route('roles.index') }}"><i class="fas fa-user-cog"></i> Perfis</a>
         <a class="dropdown-item" href="{{ route('permissions.index') }}"><i class="fas fa-user-cog"></i> Permissões</a>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#"><i class="fas fa-file-download"></i> Exportar Planilha</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-file-download"></i> Exportar PDF</a>
+        <a class="dropdown-item" href="#" id="btnExportarCSV"><i class="fas fa-file-download"></i> Exportar Planilha</a>
+        <a class="dropdown-item" href="#" id="btnExportarPDF"><i class="fas fa-file-download"></i> Exportar PDF</a>
       </div>
     </div>
   </div>
@@ -125,6 +125,12 @@ $(document).ready(function(){
         perpage = $(this).find(":selected").val(); 
         
         window.open("{{ route('users.index') }}" + "?perpage=" + perpage,"_self");
+    });
+
+    $('#btnExportarCSV').on('click', function(){
+        var filtro_name = $('input[name="name"]').val();
+        var filtro_email = $('input[name="email"]').val();
+        window.open("{{ route('users.export.csv') }}" + "?name=" + filtro_name + "&email=" + filtro_email,"_self");
     });
 }); 
 </script>

@@ -10,7 +10,8 @@
     </ol>
   </nav>
 </div>
-{{-- avisa se uma permissão foi alterada --}}
+<div class="container">
+  {{-- avisa se uma permissão foi alterada --}}
   @if(Session::has('edited_role'))
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
     <strong>Info!</strong>  {{ session('edited_role') }}
@@ -19,7 +20,6 @@
     </button>
   </div>
   @endif
-<div class="container">
   <form method="POST" action="{{ route('roles.update', $role->id) }}">
     @csrf
     @method('PUT')

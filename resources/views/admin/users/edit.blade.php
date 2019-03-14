@@ -9,7 +9,8 @@
     </ol>
   </nav>
 </div>
-{{-- avisa se um operador foi alterado --}}
+<div class="container">
+  {{-- avisa se um operador foi alterado --}}
   @if(Session::has('edited_user'))
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
     <strong>Info!</strong>  {{ session('edited_user') }}
@@ -18,7 +19,6 @@
     </button>
   </div>
   @endif
-<div class="container">
   <form method="POST" action="{{ route('users.update', $user->id) }}">
     @csrf
     @method('PUT')
