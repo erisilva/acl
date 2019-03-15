@@ -42,17 +42,4 @@ Route::prefix('admin')->namespace('Admin')->group(function () {
     Route::get('/roles/export/csv', 'RoleController@exportcsv')->name('roles.export.csv');
     Route::get('/roles/export/pdf', 'RoleController@exportpdf')->name('roles.export.pdf');
     Route::resource('/roles', 'RoleController');
-
-});
-
-
-// apagar antes de dar commit
-Route::get('/teste', function (Codedge\Fpdf\Fpdf\Fpdf $fpdf) {
-
-    $fpdf->AddPage();
-    $fpdf->SetFont('Courier', 'B', 18);
-    $fpdf->Cell(50, 25, utf8_decode('jão é muito doidão!'));
-    $fpdf->Output('D', 'arquivo.pdf', true);
-    exit;
-
 });

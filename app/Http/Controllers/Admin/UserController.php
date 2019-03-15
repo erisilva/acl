@@ -76,7 +76,7 @@ class UserController extends Controller
         $perpages = Perpage::orderBy('valor')->get();
 
         // paginação
-        $users = $users->paginate(session('perPage'))->appends([          
+        $users = $users->paginate(session('perPage', '5'))->appends([          
             'name' => request('name'),
             'email' => request('email'),           
             ]);

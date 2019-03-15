@@ -75,7 +75,7 @@ class PermissionController extends Controller
         $perpages = Perpage::orderBy('valor')->get();
 
         // paginação
-        $permissions = $permissions->paginate(session('perPage'))->appends([          
+        $permissions = $permissions->paginate(session('perPage', '5'))->appends([          
             'name' => request('name'),
             'description' => request('description'),           
             ]);

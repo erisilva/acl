@@ -73,7 +73,7 @@ class RoleController extends Controller
         $perpages = Perpage::orderBy('valor')->get();
 
         // paginação
-        $roles = $roles->paginate(session('perPage'))->appends([          
+        $roles = $roles->paginate(session('perPage', '5'))->appends([          
             'name' => request('name'),
             'description' => request('description'),           
             ]);
