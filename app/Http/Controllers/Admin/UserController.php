@@ -318,7 +318,7 @@ class UserController extends Controller
         }
         
         $this->pdf->AliasNbPages();   
-        $this->pdf->SetMargins(15, 15, 15);
+        $this->pdf->SetMargins(12, 10, 12);
         $this->pdf->SetFont('Arial','',12);
         $this->pdf->AddPage();
 

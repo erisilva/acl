@@ -14,7 +14,7 @@
 
   <div class="card">
     <div class="card-header">
-      Operador
+      Perfis
     </div>
     <div class="card-body">
       <ul class="list-group list-group-flush">
