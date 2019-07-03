@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- CSRF Token -->
@@ -84,7 +85,7 @@
     </main>
 
     <footer class="container-fluid text-center py-4">
-        <p><strong>Diretória da Tecnologia da Informática</strong> - ramal: 6299 </p>
+        <p><strong>Rodapé</strong> - ramal: 1234 </p>
     </footer>
 
     <!-- Scripts -->
